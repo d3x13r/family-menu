@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import MenuView from "./pages/MenuView";
 import MenuCreate from "./pages/MenuCreate";
 import Dishes from "./pages/Dishes";
+import ShoppingList from "./pages/ShoppingList";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -30,8 +31,8 @@ function App() {
   }, []);
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#EAF2EC" }}>
-      <p style={{ color: "#4A7C59", fontSize: "1.2rem" }}>Зареждане...</p>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F6F4EF" }}>
+      <p style={{ color: "#2E6B4F", fontSize: "1.2rem", fontFamily: "'Manrope', sans-serif" }}>Зареждане...</p>
     </div>
   );
 
@@ -42,17 +43,18 @@ function App() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#EAF2EC", fontFamily: "sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#F6F4EF" }}>
       <Navbar
         activePage={activePage}
         setActivePage={setActivePage}
         familyCode={familyCode}
       />
-      <div style={{ maxWidth: "960px", margin: "0 auto", padding: "2rem 1rem" }}>
+      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 28px" }}>
         {activePage === "menu" && <MenuView familyCode={familyCode} />}
         {activePage === "create" && <MenuCreate familyCode={familyCode} />}
         {activePage === "dishes" && <Dishes familyCode={familyCode} />}
-      </div>
+        {activePage === "list" && <ShoppingList familyCode={familyCode} />}
+      </main>
     </div>
   );
 }
