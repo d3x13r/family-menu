@@ -13,7 +13,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-const CATEGORIES = ["Закуски", "Основни ястия", "Гарнитури", "Десерти"];
+const CATEGORIES = ["Закуски", "Основни ястия", "Месни", "Гарнитури", "Десерти"];
 
 const emptyForm = {
   name: "",
