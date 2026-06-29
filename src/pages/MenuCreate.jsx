@@ -13,7 +13,7 @@ import {
 const DAYS = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"];
 const MEALS = ["закуска", "обяд", "вечеря"];
 const MEAL_LABELS = { закуска: "🌅 Закуска", обяд: "☀️ Обяд", вечеря: "🌙 Вечеря" };
-const CATEGORIES = ["Всички", "Закуски", "Основни ястия", "Месни", "Гарнитури", "Десерти"];
+const CATEGORIES = ["Всички", "Закуски", "Основни ястия", "Месо", "Гарнитури", "Десерти"];
 
 export default function MenuCreate({ familyCode }) {
   const [activeDay, setActiveDay] = useState("Понеделник");
