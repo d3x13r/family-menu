@@ -8,17 +8,26 @@ export default function Navbar({ activePage, setActivePage, familyCode }) {
       justifyContent: "space-between",
       boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
       fontFamily: "sans-serif",
-      flexWrap: "wrap",
-      gap: "0.5rem"
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexShrink: 0 }}>
         <span style={{ fontSize: "1.2rem" }}>🍽️</span>
-        <span style={{ fontWeight: "700", color: "#4A7C59", fontSize: "0.95rem" }}>
+        <span style={{ fontWeight: "700", color: "#4A7C59", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
           Семейно Меню
         </span>
+        <div style={{
+          fontSize: "0.72rem",
+          color: "#888",
+          background: "#EAF2EC",
+          padding: "0.25rem 0.6rem",
+          borderRadius: "6px",
+          whiteSpace: "nowrap",
+          marginLeft: "0.4rem"
+        }}>
+          Код: <strong style={{ color: "#4A7C59" }}>{familyCode}</strong>
+        </div>
       </div>
 
-      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "0.4rem" }}>
         {[
           { id: "menu", label: "📅 Меню" },
           { id: "create", label: "✏️ Създай" },
@@ -36,22 +45,12 @@ export default function Navbar({ activePage, setActivePage, familyCode }) {
               fontSize: "0.78rem",
               background: activePage === item.id ? "#4A7C59" : "#EAF2EC",
               color: activePage === item.id ? "white" : "#4A7C59",
+              whiteSpace: "nowrap"
             }}
           >
             {item.label}
           </button>
         ))}
-      </div>
-
-      <div style={{
-        fontSize: "0.72rem",
-        color: "#888",
-        background: "#EAF2EC",
-        padding: "0.25rem 0.6rem",
-        borderRadius: "6px",
-        whiteSpace: "nowrap"
-      }}>
-        Код: <strong style={{ color: "#4A7C59" }}>{familyCode}</strong>
       </div>
     </nav>
   );
