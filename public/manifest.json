@@ -1,0 +1,18 @@
+{
+  "name": "Семейно Меню",
+  "short_name": "Меню",
+  "description": "Седмично семейно меню",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#EAF2EC",
+  "theme_color": "#4A7C59",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
