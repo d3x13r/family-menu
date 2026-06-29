@@ -135,9 +135,9 @@ export default function Dishes({ familyCode }) {
             </div>
           )}
 
-          {/* Body */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 0 }}>
-            {/* Съставки */}
+            {/* Body */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 0 }}>
+             {/* Съставки */}
             <div style={{ padding: "28px 34px", borderRight: "1px solid #F0EDE5" }}>
               <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", color: "#6F7B73", marginBottom: 16 }}>
                 СЪСТАВКИ
@@ -153,7 +153,7 @@ export default function Dishes({ familyCode }) {
             </div>
 
             {/* Рецепта */}
-            <div style={{ padding: "28px 34px" }}>
+            <div style={{ padding: "28px 34px", borderTop: "1px solid #F0EDE5" }}>
               <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", color: "#6F7B73", marginBottom: 16 }}>
                 РЕЦЕПТА
               </p>
