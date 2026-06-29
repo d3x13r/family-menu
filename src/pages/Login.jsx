@@ -30,22 +30,35 @@ export default function Login() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "#EAF2EC",
-      fontFamily: "sans-serif"
+      background: "#F6F4EF",
+      fontFamily: "'Manrope', sans-serif",
+      padding: "1rem",
     }}>
       <div style={{
         background: "white",
-        padding: "2rem",
-        borderRadius: "16px",
+        border: "1px solid #ECE8DF",
+        borderRadius: 20,
+        padding: "40px 36px",
         width: "100%",
-        maxWidth: "380px",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.08)"
+        maxWidth: 400,
+        boxShadow: "0 4px 24px rgba(30,42,36,0.08)",
       }}>
-        <h1 style={{ color: "#4A7C59", marginBottom: "0.25rem" }}>
-          🍽️ Семейно Меню
-        </h1>
-        <p style={{ color: "#888", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
-          {isRegister ? "Създай акаунт" : "Влез в акаунта си"}
+        {/* Лого */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
+          <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="12" stroke="#2E6B4F" strokeWidth="2"/>
+            <circle cx="14" cy="14" r="6" stroke="#2E6B4F" strokeWidth="2"/>
+          </svg>
+          <span style={{ fontFamily: "'Lora', serif", fontWeight: 600, fontSize: 22, color: "#1E2A24" }}>
+            Семейно Меню
+          </span>
+        </div>
+
+        <h2 style={{ fontFamily: "'Lora', serif", fontSize: 26, fontWeight: 600, color: "#1E2A24", marginBottom: 6 }}>
+          {isRegister ? "Създай акаунт" : "Добре дошъл"}
+        </h2>
+        <p style={{ color: "#6F7B73", fontSize: 14, marginBottom: 28 }}>
+          {isRegister ? "Регистрирай се за да започнеш" : "Влез в акаунта си"}
         </p>
 
         <input
@@ -64,18 +77,25 @@ export default function Login() {
         />
 
         {error && (
-          <p style={{ color: "red", fontSize: "0.8rem", marginBottom: "1rem" }}>
+          <p style={{ color: "#A0432E", fontSize: 13, marginBottom: 16, background: "#F7ECE8", padding: "10px 14px", borderRadius: 8 }}>
             {error}
           </p>
         )}
 
-        <button onClick={handleSubmit} style={btnStyle}>
+        <button onClick={handleSubmit} style={{
+          width: "100%", padding: "12px",
+          background: "#2E6B4F", color: "white",
+          border: "none", borderRadius: 11,
+          fontFamily: "'Manrope', sans-serif",
+          fontWeight: 700, fontSize: 15,
+          cursor: "pointer", marginBottom: 16,
+        }}>
           {isRegister ? "Регистрация" : "Вход"}
         </button>
 
         <p
           onClick={() => setIsRegister(!isRegister)}
-          style={{ textAlign: "center", color: "#4A7C59", cursor: "pointer", fontSize: "0.85rem", marginTop: "1rem" }}
+          style={{ textAlign: "center", color: "#2E6B4F", cursor: "pointer", fontSize: 14, fontWeight: 600 }}
         >
           {isRegister ? "Вече имам акаунт → Вход" : "Нямам акаунт → Регистрация"}
         </p>
@@ -86,23 +106,14 @@ export default function Login() {
 
 const inputStyle = {
   width: "100%",
-  padding: "0.75rem",
-  marginBottom: "1rem",
-  borderRadius: "8px",
-  border: "1.5px solid #D8E4DA",
-  fontSize: "0.95rem",
+  padding: "11px 14px",
+  marginBottom: 14,
+  borderRadius: 10,
+  border: "1.5px solid #E2DDD3",
+  fontFamily: "'Manrope', sans-serif",
+  fontSize: 14,
+  color: "#1E2A24",
   outline: "none",
-  boxSizing: "border-box"
-};
-
-const btnStyle = {
-  width: "100%",
-  padding: "0.75rem",
-  background: "#4A7C59",
-  color: "white",
-  border: "none",
-  borderRadius: "8px",
-  fontSize: "1rem",
-  fontWeight: "600",
-  cursor: "pointer"
+  boxSizing: "border-box",
+  background: "white",
 };
