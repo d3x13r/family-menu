@@ -13,6 +13,7 @@ import {
 const DAYS = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"];
 const MEALS = ["закуска", "обяд", "вечеря"];
 const MEAL_LABELS = { закуска: "🌅 Закуска", обяд: "☀️ Обяд", вечеря: "🌙 Вечеря" };
+const CATEGORIES = ["Всички", "Закуски", "Основни ястия", "Месни", "Гарнитури", "Десерти"];
 
 export default function MenuCreate({ familyCode }) {
   const [activeDay, setActiveDay] = useState("Понеделник");
@@ -21,6 +22,7 @@ export default function MenuCreate({ familyCode }) {
   const [menu, setMenu] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("Всички");
 
   useEffect(() => {
     loadDishes();
@@ -40,7 +42,6 @@ export default function MenuCreate({ familyCode }) {
   };
 
   const toggleDish = async (dish) => {
-    const key = `${activeDay}.${activeMeal}`;
     const current = menu[activeDay]?.[activeMeal] || [];
     const exists = current.find((d) => d.id === dish.id);
     const updated = exists
@@ -63,6 +64,9 @@ export default function MenuCreate({ familyCode }) {
   };
 
   const currentDishes = menu[activeDay]?.[activeMeal] || [];
+  const filteredDishes = filterCategory === "Всички"
+    ? dishes
+    : dishes.filter((d) => d.category === filterCategory);
 
   return (
     <div style={{ fontFamily: "sans-serif" }}>
@@ -144,14 +148,36 @@ export default function MenuCreate({ familyCode }) {
         </div>
       )}
 
+      {/* Филтър категории */}
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setFilterCategory(cat)}
+            style={{
+              padding: "0.3rem 0.7rem",
+              borderRadius: "20px",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "600",
+              fontSize: "0.75rem",
+              background: filterCategory === cat ? "#C9622F" : "white",
+              color: filterCategory === cat ? "white" : "#C9622F",
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {/* Списък ястия */}
-      {dishes.length === 0 ? (
+      {filteredDishes.length === 0 ? (
         <div style={{ textAlign: "center", color: "#aaa", padding: "3rem" }}>
-          Няма добавени ястия. Отиди в раздел "Ястия" и добави първото!
+          Няма ястия в тази категория.
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
-          {dishes.map((dish) => {
+          {filteredDishes.map((dish) => {
             const selected = currentDishes.find((d) => d.id === dish.id);
             return (
               <div
@@ -165,7 +191,6 @@ export default function MenuCreate({ familyCode }) {
                   cursor: "pointer",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                   borderLeft: `4px solid ${selected ? "#2d5a3d" : "#4A7C59"}`,
-                  transition: "all 0.15s"
                 }}
               >
                 <div style={{ fontSize: "0.7rem", opacity: 0.7, marginBottom: "0.2rem" }}>
