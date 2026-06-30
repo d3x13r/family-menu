@@ -93,9 +93,6 @@ export default function MenuView({ familyCode }) {
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
-        <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", color: "#2E6B4F", textTransform: "uppercase", marginBottom: 6 }}>
-          {isCurrentWeek ? "ТАЗИ СЕДМИЦА" : "СЕДМИЦА"}
-        </p>
         <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
           Седмично меню
         </h1>
