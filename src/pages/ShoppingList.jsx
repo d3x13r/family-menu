@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase/config";
 import { doc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { getWeekKey, getMenuDocId } from "../utils/weekUtils";
 
 const DAYS = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"];
 const MEALS = ["закуска", "обяд", "вечеря"];
@@ -20,7 +21,8 @@ export default function ShoppingList({ familyCode }) {
   useEffect(() => { loadItems(); }, []);
 
   const loadItems = async () => {
-    const menuRef = doc(db, "menus", familyCode);
+    const weekKey = getWeekKey();
+    const menuRef = doc(db, "menus", getMenuDocId(familyCode, weekKey));
     const menuSnap = await getDoc(menuRef);
     if (!menuSnap.exists()) { setLoading(false); return; }
     const menu = menuSnap.data().menu || {};

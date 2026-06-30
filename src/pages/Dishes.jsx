@@ -6,6 +6,7 @@ import {
 } from "firebase/firestore";
 
 const CATEGORIES = ["Закуски", "Основни ястия", "Месни", "Гарнитури", "Десерти"];
+const UNITS = ["гр", "мл", "бр"];
 
 const CAT_COLORS = {
   "Закуски":       { bg: "#F5ECD7", color: "#8A6A2A" },
@@ -15,7 +16,32 @@ const CAT_COLORS = {
   "Десерти":       { bg: "#EFE2EC", color: "#8A4A77" },
 };
 
-const emptyForm = { name: "", category: "Основни ястия", description: "", ingredients: "", steps: "" };
+const emptyForm = { name: "", category: "Основни ястия", description: "", ingredients: [], steps: "" };
+const emptyIngredient = { product: "", amount: "", unit: "гр" };
+
+// Опитва да парсне стар текстов формат "Картофи - 200 гр." към {product, amount, unit}
+function parseLegacyIngredient(text) {
+  const match = text.match(/^(.+?)\s*-\s*(\d+(?:[.,]\d+)?)\s*(гр|г|мл|бр|л|кг)?\.?$/i);
+  if (match) {
+    let unit = (match[3] || "гр").toLowerCase();
+    if (unit === "г") unit = "гр";
+    if (unit === "л") unit = "мл";
+    if (unit === "кг") unit = "гр";
+    if (!UNITS.includes(unit)) unit = "гр";
+    return { product: match[1].trim(), amount: match[2].replace(",", "."), unit };
+  }
+  return { product: text, amount: "", unit: "гр" };
+}
+
+function normalizeIngredients(dish) {
+  if (!dish.ingredients) return [];
+  // Вече в новия формат
+  if (dish.ingredients.length > 0 && typeof dish.ingredients[0] === "object") {
+    return dish.ingredients;
+  }
+  // Стар текстов формат — парсваме
+  return dish.ingredients.map(parseLegacyIngredient);
+}
 
 export default function Dishes({ familyCode }) {
   const [dishes, setDishes] = useState([]);
@@ -34,11 +60,28 @@ export default function Dishes({ familyCode }) {
     setDishes(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   };
 
+  const addIngredientRow = () => {
+    setForm({ ...form, ingredients: [...form.ingredients, { ...emptyIngredient }] });
+  };
+
+  const updateIngredientRow = (idx, field, value) => {
+    const updated = [...form.ingredients];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setForm({ ...form, ingredients: updated });
+  };
+
+  const removeIngredientRow = (idx) => {
+    setForm({ ...form, ingredients: form.ingredients.filter((_, i) => i !== idx) });
+  };
+
   const saveDish = async () => {
     if (!form.name.trim()) return;
+    const cleanIngredients = form.ingredients
+      .filter((i) => i.product.trim())
+      .map((i) => ({ product: i.product.trim(), amount: i.amount || "", unit: i.unit }));
     const data = {
       ...form, familyCode,
-      ingredients: form.ingredients.split("\n").filter(Boolean),
+      ingredients: cleanIngredients,
       steps: form.steps.split("\n").filter(Boolean),
     };
     if (editingDish) {
@@ -73,7 +116,7 @@ export default function Dishes({ familyCode }) {
     setForm({
       name: dish.name, category: dish.category,
       description: dish.description || "",
-      ingredients: dish.ingredients.join("\n"),
+      ingredients: normalizeIngredients(dish),
       steps: dish.steps.join("\n"),
     });
     setSelectedDish(null); setShowForm(true);
@@ -81,9 +124,9 @@ export default function Dishes({ familyCode }) {
 
   const filtered = activeCategory === "Всички" ? dishes : dishes.filter((d) => d.category === activeCategory);
 
-  // Детайл на ястие
   if (selectedDish) {
     const catStyle = CAT_COLORS[selectedDish.category] || { bg: "#F0EDE5", color: "#5E6B63" };
+    const ingredients = normalizeIngredients(selectedDish);
     return (
       <div>
         <button onClick={() => { setSelectedDish(null); setConfirmDelete(false); }} style={ghostBtn}>
@@ -94,7 +137,6 @@ export default function Dishes({ familyCode }) {
         </button>
 
         <div style={{ background: "white", border: "1px solid #ECE8DF", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 3px rgba(30,42,36,0.05)", marginTop: 16 }}>
-          {/* Header */}
           <div style={{ padding: "30px 34px", borderBottom: "1px solid #F0EDE5", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
             <div>
               <span style={{ display: "inline-block", background: catStyle.bg, color: catStyle.color, borderRadius: 6, padding: "3px 10px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
@@ -135,24 +177,23 @@ export default function Dishes({ familyCode }) {
             </div>
           )}
 
-            {/* Body */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 0 }}>
-             {/* Съставки */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 0 }}>
             <div style={{ padding: "28px 34px", borderRight: "1px solid #F0EDE5" }}>
               <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", color: "#6F7B73", marginBottom: 16 }}>
                 СЪСТАВКИ
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-                {selectedDish.ingredients.map((ing, i) => (
+                {ingredients.map((ing, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#2E6B4F", marginTop: 6, flexShrink: 0 }} />
-                    <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 15, color: "#1E2A24" }}>{ing}</span>
+                    <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 15, color: "#1E2A24" }}>
+                      {ing.product}{ing.amount ? ` — ${ing.amount} ${ing.unit}` : ""}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Рецепта */}
             <div style={{ padding: "28px 34px", borderTop: "1px solid #F0EDE5" }}>
               <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", color: "#6F7B73", marginBottom: 16 }}>
                 РЕЦЕПТА
@@ -204,7 +245,43 @@ export default function Dishes({ familyCode }) {
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
           <input placeholder="Описание (по избор)" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} style={inputStyle} />
-          <textarea placeholder="Съставки (всяка на нов ред)" value={form.ingredients} onChange={(e) => setForm({ ...form, ingredients: e.target.value })} rows={4} style={inputStyle} />
+
+          {/* Съставки */}
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: "#6F7B73", textTransform: "uppercase", marginTop: 16, marginBottom: 8 }}>
+            СЪСТАВКИ
+          </p>
+          {form.ingredients.map((ing, idx) => (
+            <div key={idx} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+              <input
+                placeholder="Продукт"
+                value={ing.product}
+                onChange={(e) => updateIngredientRow(idx, "product", e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0, flex: 2 }}
+              />
+              <input
+                placeholder="Кол."
+                type="number"
+                value={ing.amount}
+                onChange={(e) => updateIngredientRow(idx, "amount", e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0, flex: 1, minWidth: 70 }}
+              />
+              <select
+                value={ing.unit}
+                onChange={(e) => updateIngredientRow(idx, "unit", e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0, flex: 1, minWidth: 80 }}
+              >
+                {UNITS.map((u) => <option key={u}>{u}</option>)}
+              </select>
+              <button onClick={() => removeIngredientRow(idx)} style={{ ...dangerBtn, padding: "10px 12px", flexShrink: 0 }}>✕</button>
+            </div>
+          ))}
+          <button onClick={addIngredientRow} style={{ ...ghostBtn, marginBottom: 16 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добави продукт
+          </button>
+
           <textarea placeholder="Стъпки на рецептата (всяка на нов ред)" value={form.steps} onChange={(e) => setForm({ ...form, steps: e.target.value })} rows={4} style={inputStyle} />
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={saveDish} style={primaryBtn}>Запази</button>
@@ -213,7 +290,6 @@ export default function Dishes({ familyCode }) {
         </div>
       )}
 
-      {/* Категории */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
         {["Всички", ...CATEGORIES].map((cat) => (
           <button key={cat} onClick={() => setActiveCategory(cat)} style={{
