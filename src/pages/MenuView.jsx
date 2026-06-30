@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase/config";
 import { doc, getDoc } from "firebase/firestore";
+import { getWeekKey, formatWeekRange, getMenuDocId, getDaysOrderedFromToday } from "../utils/weekUtils";
 
-const DAYS = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"];
 const MEALS = [
   { key: "закуска", label: "ЗАКУСКА", color: "#E0A93B" },
   { key: "обяд", label: "ОБЯД", color: "#4FA06B" },
@@ -14,47 +14,51 @@ function pluralYastia(n) {
 }
 
 export default function MenuView({ familyCode }) {
+  const [weekKey, setWeekKey] = useState(getWeekKey());
   const [menu, setMenu] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(null);
 
-  useEffect(() => { loadMenu(); }, []);
+  useEffect(() => { loadMenu(); }, [weekKey]);
 
   const loadMenu = async () => {
-    const ref = doc(db, "menus", familyCode);
+    setLoading(true);
+    const ref = doc(db, "menus", getMenuDocId(familyCode, weekKey));
     const snap = await getDoc(ref);
-    if (snap.exists()) setMenu(snap.data().menu || {});
+    setMenu(snap.exists() ? snap.data().menu || {} : {});
     setLoading(false);
   };
 
-  if (loading) return (
-    <p style={{ color: "#6F7B73", fontFamily: "'Manrope', sans-serif" }}>Зареждане...</p>
-  );
+  const changeWeek = (offset) => {
+    const d = new Date(weekKey);
+    d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+    d.setDate(d.getDate() + offset * 7);
+    setWeekKey(getWeekKey(d));
+    setSelectedDay(null);
+  };
+
+  const days = getDaysOrderedFromToday(weekKey);
+  const isCurrentWeek = weekKey === getWeekKey();
+
+  if (loading) return <p style={{ color: "#6F7B73", fontFamily: "'Manrope', sans-serif" }}>Зареждане...</p>;
 
   if (selectedDay) {
-    const dayMenu = menu[selectedDay] || {};
+    const dayMenu = menu[selectedDay.name] || {};
     return (
       <div>
-        <button
-          onClick={() => setSelectedDay(null)}
-          style={{
-            display: "flex", alignItems: "center", gap: 6,
-            background: "white", border: "1.5px solid #DDD8CE",
-            borderRadius: 10, padding: "8px 16px",
-            fontFamily: "'Manrope', sans-serif", fontWeight: 600,
-            fontSize: 14, color: "#1E2A24", marginBottom: 24,
-            transition: "background .15s",
-          }}
-        >
+        <button onClick={() => setSelectedDay(null)} style={ghostBtn}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
           </svg>
           Назад
         </button>
 
-        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", marginBottom: 24 }}>
-          {selectedDay}
+        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", marginBottom: 4, marginTop: 16 }}>
+          {selectedDay.name}
         </h1>
+        <p style={{ color: "#6F7B73", fontSize: 15, marginBottom: 24, fontFamily: "'Manrope', sans-serif" }}>
+          {selectedDay.dateLabel}
+        </p>
 
         <div style={{ background: "white", border: "1px solid #ECE8DF", borderRadius: 16, overflow: "hidden", boxShadow: "0 1px 3px rgba(30,42,36,0.05)" }}>
           {MEALS.map(({ key, label, color }, i) => {
@@ -72,11 +76,7 @@ export default function MenuView({ familyCode }) {
                 ) : (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {dishes.map((d) => (
-                      <span key={d.id} style={{
-                        background: "#EEF3EF", color: "#234735",
-                        borderRadius: 8, padding: "5px 12px",
-                        fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: 13,
-                      }}>
+                      <span key={d.id} style={{ background: "#EEF3EF", color: "#234735", borderRadius: 8, padding: "5px 12px", fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: 13 }}>
                         {d.name}
                       </span>
                     ))}
@@ -92,37 +92,74 @@ export default function MenuView({ familyCode }) {
 
   return (
     <div>
-      <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", color: "#2E6B4F", textTransform: "uppercase", marginBottom: 6 }}>
-        ТАЗИ СЕДМИЦА
-      </p>
-      <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em", marginBottom: 28 }}>
-        Седмично меню
-      </h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
+        <div>
+          <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", color: "#2E6B4F", textTransform: "uppercase", marginBottom: 6 }}>
+            {isCurrentWeek ? "ТАЗИ СЕДМИЦА" : "СЕДМИЦА"}
+          </p>
+          <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
+            Седмично меню
+          </h1>
+          <p style={{ color: "#6F7B73", fontSize: 14, marginTop: 4, fontFamily: "'Manrope', sans-serif" }}>
+            {formatWeekRange(weekKey)}
+          </p>
+        </div>
+
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => changeWeek(-1)} style={navBtn}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          {!isCurrentWeek && (
+            <button onClick={() => setWeekKey(getWeekKey())} style={ghostBtn}>Тази седмица</button>
+          )}
+          <button onClick={() => changeWeek(1)} style={navBtn}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(330px, 1fr))", gap: 18 }}>
-        {DAYS.map((day) => {
-          const dayMenu = menu[day] || {};
+        {days.map((day) => {
+          const dayMenu = menu[day.name] || {};
           const total = Object.values(dayMenu).flat().length;
+          const isToday = isCurrentWeek && day.name === days[0].name;
           return (
             <div
-              key={day}
+              key={day.name}
               onClick={() => setSelectedDay(day)}
               style={{
-                background: "white", border: "1px solid #ECE8DF",
+                background: "white",
+                border: `1px solid ${isToday ? "#2E6B4F" : "#ECE8DF"}`,
                 borderRadius: 16, padding: 22, cursor: "pointer",
                 boxShadow: "0 1px 2px rgba(30,42,36,0.04)",
                 transition: "transform .15s, box-shadow .15s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(30,42,36,0.08)"; e.currentTarget.style.borderColor = "#2E6B4F"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(30,42,36,0.04)"; e.currentTarget.style.borderColor = "#ECE8DF"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(30,42,36,0.08)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(30,42,36,0.04)"; }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <h3 style={{ fontFamily: "'Lora', serif", fontSize: 21, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.01em" }}>
-                  {day}
-                </h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <h3 style={{ fontFamily: "'Lora', serif", fontSize: 21, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.01em" }}>
+                      {day.name}
+                    </h3>
+                    {isToday && (
+                      <span style={{ background: "#2E6B4F", color: "white", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 999, fontFamily: "'Manrope', sans-serif" }}>
+                        ДНЕС
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ color: "#9AA39B", fontSize: 13, fontFamily: "'Manrope', sans-serif", marginTop: 2 }}>
+                    {day.dateLabel}
+                  </p>
+                </div>
                 <span style={{
                   fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 12,
-                  padding: "3px 10px", borderRadius: 999,
+                  padding: "3px 10px", borderRadius: 999, flexShrink: 0,
                   background: total > 0 ? "#E3EFE6" : "#F0EDE5",
                   color: total > 0 ? "#2E6B4F" : "#A7AEA6",
                 }}>
@@ -145,11 +182,7 @@ export default function MenuView({ familyCode }) {
                     ) : (
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {dishes.map((d) => (
-                          <span key={d.id} style={{
-                            background: "#EEF3EF", color: "#234735",
-                            borderRadius: 8, padding: "3px 10px",
-                            fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: 12,
-                          }}>
+                          <span key={d.id} style={{ background: "#EEF3EF", color: "#234735", borderRadius: 8, padding: "3px 10px", fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: 12 }}>
                             {d.name}
                           </span>
                         ))}
@@ -165,3 +198,18 @@ export default function MenuView({ familyCode }) {
     </div>
   );
 }
+
+const ghostBtn = {
+  display: "flex", alignItems: "center", gap: 6,
+  padding: "8px 16px", borderRadius: 10,
+  border: "1.5px solid #DDD8CE", background: "white",
+  fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 14,
+  color: "#1E2A24", cursor: "pointer",
+};
+
+const navBtn = {
+  display: "flex", alignItems: "center", justifyContent: "center",
+  width: 38, height: 38, borderRadius: 10,
+  border: "1.5px solid #DDD8CE", background: "white",
+  color: "#1E2A24", cursor: "pointer",
+};
