@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase/config";
-import {
-  collection, getDocs, query, where, doc, setDoc, getDoc,
-} from "firebase/firestore";
+import { collection, getDocs, query, where, doc, setDoc, getDoc } from "firebase/firestore";
+import { getWeekKey, getMenuDocId } from "../utils/weekUtils";
 
 const DAYS = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"];
 const MEALS = [
@@ -21,6 +20,7 @@ const CAT_COLORS = {
 };
 
 export default function MenuCreate({ familyCode }) {
+  const weekKey = getWeekKey();
   const [activeDay, setActiveDay] = useState("Понеделник");
   const [activeMeal, setActiveMeal] = useState("закуска");
   const [dishes, setDishes] = useState([]);
@@ -38,7 +38,7 @@ export default function MenuCreate({ familyCode }) {
   };
 
   const loadMenu = async () => {
-    const ref = doc(db, "menus", familyCode);
+    const ref = doc(db, "menus", getMenuDocId(familyCode, weekKey));
     const snap = await getDoc(ref);
     if (snap.exists()) setMenu(snap.data().menu || {});
   };
@@ -52,17 +52,14 @@ export default function MenuCreate({ familyCode }) {
     const newMenu = { ...menu, [activeDay]: { ...menu[activeDay], [activeMeal]: updated } };
     setMenu(newMenu);
     setSaving(true);
-    await setDoc(doc(db, "menus", familyCode), { menu: newMenu });
+    await setDoc(doc(db, "menus", getMenuDocId(familyCode, weekKey)), { menu: newMenu, weekKey });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const currentDishes = menu[activeDay]?.[activeMeal] || [];
-  const filteredDishes = filterCategory === "Всички"
-    ? dishes
-    : dishes.filter((d) => d.category === filterCategory);
-
+  const filteredDishes = filterCategory === "Всички" ? dishes : dishes.filter((d) => d.category === filterCategory);
   const activeMealObj = MEALS.find((m) => m.key === activeMeal);
 
   return (
@@ -75,7 +72,6 @@ export default function MenuCreate({ familyCode }) {
         {saved && <span style={{ color: "#2E6B4F", fontSize: 13, fontWeight: 600 }}>✓ Запазено</span>}
       </div>
 
-      {/* Дни */}
       <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: "#6F7B73", textTransform: "uppercase", marginBottom: 8 }}>ДЕН</p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
         {DAYS.map((day) => (
@@ -92,7 +88,6 @@ export default function MenuCreate({ familyCode }) {
         ))}
       </div>
 
-      {/* Хранения */}
       <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: "#6F7B73", textTransform: "uppercase", marginBottom: 8 }}>ХРАНЕНЕ</p>
       <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
         {MEALS.map(({ key, label, color }) => (
@@ -111,7 +106,6 @@ export default function MenuCreate({ familyCode }) {
         ))}
       </div>
 
-      {/* Избрани */}
       <div style={{ background: "white", border: "1px solid #ECE8DF", borderRadius: 14, padding: "18px 20px", marginBottom: 20 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: "#6F7B73", marginBottom: 12 }}>
           Избрани за <strong style={{ color: "#1E2A24" }}>{activeDay}</strong> · {activeMealObj?.label}
@@ -135,7 +129,6 @@ export default function MenuCreate({ familyCode }) {
         )}
       </div>
 
-      {/* Филтър */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {CATEGORIES.map((cat) => (
           <button key={cat} onClick={() => setFilterCategory(cat)} style={{
@@ -151,7 +144,6 @@ export default function MenuCreate({ familyCode }) {
         ))}
       </div>
 
-      {/* Ястия */}
       {filteredDishes.length === 0 ? (
         <p style={{ color: "#B6BAB2", textAlign: "center", padding: "3rem" }}>Няма ястия в тази категория.</p>
       ) : (
