@@ -5,13 +5,13 @@ import {
   doc, updateDoc, deleteDoc, getDoc, setDoc,
 } from "firebase/firestore";
 
-const CATEGORIES = ["Закуски", "Основни ястия", "Месни", "Гарнитури", "Десерти"];
+const CATEGORIES = ["Закуски", "Основни ястия", "Месо", "Гарнитури", "Десерти"];
 const UNITS = ["гр", "мл", "бр"];
 
 const CAT_COLORS = {
   "Закуски":       { bg: "#F5ECD7", color: "#8A6A2A" },
   "Основни ястия": { bg: "#E3EFE6", color: "#2E6B4F" },
-  "Месни":         { bg: "#F3E1DB", color: "#9E4E38" },
+  "Месо":         { bg: "#F3E1DB", color: "#9E4E38" },
   "Гарнитури":     { bg: "#EBEFDA", color: "#67762C" },
   "Десерти":       { bg: "#EFE2EC", color: "#8A4A77" },
 };

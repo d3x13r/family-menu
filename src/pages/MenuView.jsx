@@ -92,30 +92,32 @@ export default function MenuView({ familyCode }) {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
-        <div>
-          <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
-            Седмично меню
-          </h1>
-          <p style={{ color: "#6F7B73", fontSize: 14, marginTop: 4, fontFamily: "'Manrope', sans-serif" }}>
+      <div style={{ marginBottom: 28 }}>
+        <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", color: "#2E6B4F", textTransform: "uppercase", marginBottom: 6 }}>
+          {isCurrentWeek ? "ТАЗИ СЕДМИЦА" : "СЕДМИЦА"}
+        </p>
+        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
+          Седмично меню
+        </h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginTop: 8 }}>
+          <p style={{ color: "#6F7B73", fontSize: 14, fontFamily: "'Manrope', sans-serif" }}>
             {formatWeekRange(weekKey)}
           </p>
-        </div>
-
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => changeWeek(-1)} style={navBtn}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </button>
-          {!isCurrentWeek && (
-            <button onClick={() => setWeekKey(getWeekKey())} style={ghostBtn}>Тази седмица</button>
-          )}
-          <button onClick={() => changeWeek(1)} style={navBtn}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button onClick={() => changeWeek(-1)} style={navBtn}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            {!isCurrentWeek && (
+              <button onClick={() => setWeekKey(getWeekKey())} style={{ ...ghostBtn, padding: "8px 12px", fontSize: 13 }}>Тази седмица</button>
+            )}
+            <button onClick={() => changeWeek(1)} style={navBtn}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
