@@ -94,9 +94,6 @@ export default function MenuView({ familyCode }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
         <div>
-          <p style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: 13, letterSpacing: "0.06em", color: "#2E6B4F", textTransform: "uppercase", marginBottom: 6 }}>
-            {isCurrentWeek ? "ТАЗИ СЕДМИЦА" : "СЕДМИЦА"}
-          </p>
           <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
             Седмично меню
           </h1>
@@ -152,10 +149,10 @@ export default function MenuView({ familyCode }) {
                         ДНЕС
                       </span>
                     )}
-                  </div>
-                  <p style={{ color: "#9AA39B", fontSize: 13, fontFamily: "'Manrope', sans-serif", marginTop: 2 }}>
+                    <p style={{ color: "#9AA39B", fontSize: 13, fontFamily: "'Manrope', sans-serif", marginTop: 2 }}>
                     {day.dateLabel}
-                  </p>
+                    </p>
+                  </div>
                 </div>
                 <span style={{
                   fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 12,
