@@ -4,15 +4,25 @@
   "description": "Седмично семейно меню",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#EAF2EC",
-  "theme_color": "#4A7C59",
+  "background_color": "#F6F4EF",
+  "theme_color": "#2E6B4F",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ]
 }
