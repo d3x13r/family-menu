@@ -299,7 +299,7 @@ const filtered = dishes
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4 }}>
         {["Всички", ...CATEGORIES].map((cat) => (
           <button key={cat} onClick={() => setActiveCategory(cat)} style={{
             padding: "6px 14px", borderRadius: 999, border: "1.5px solid",
