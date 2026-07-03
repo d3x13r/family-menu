@@ -78,7 +78,7 @@ export default function MenuCreate({ familyCode }) {
       </div>
 
       <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", color: "#6F7B73", textTransform: "uppercase", marginBottom: 8 }}>ДЕН</p>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 20, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4 }}>
         {DAYS.map((day) => (
           <button key={day} onClick={() => setActiveDay(day)} style={{
             padding: "8px 14px", borderRadius: 999, border: "1.5px solid",
@@ -134,7 +134,7 @@ export default function MenuCreate({ familyCode }) {
         )}
       </div>
 
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4 }}>
         {CATEGORIES.map((cat) => (
           <button key={cat} onClick={() => setFilterCategory(cat)} style={{
             padding: "6px 14px", borderRadius: 999, border: "1.5px solid",
