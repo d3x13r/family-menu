@@ -218,9 +218,9 @@ export default function MenuView({ familyCode }) {
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
+        <h3 style={{ fontFamily: "'Lora', serif", fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
           Седмично меню
-        </h1>
+        </h3>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginTop: 8 }}>
           <p style={{ color: "#6F7B73", fontSize: 14, fontFamily: "'Manrope', sans-serif" }}>
             {formatWeekRange(weekKey)}

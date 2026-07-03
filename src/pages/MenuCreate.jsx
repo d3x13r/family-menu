@@ -70,9 +70,9 @@ export default function MenuCreate({ familyCode }) {
   return (
     <div style={{ fontFamily: "'Manrope', sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
+        <h3 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
           Създай меню
-        </h1>
+        </h3>
         {saving && <span style={{ color: "#6F7B73", fontSize: 13 }}>Запазване...</span>}
         {saved && <span style={{ color: "#2E6B4F", fontSize: 13, fontWeight: 600 }}>✓ Запазено</span>}
       </div>

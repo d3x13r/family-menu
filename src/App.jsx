@@ -49,7 +49,7 @@ function App() {
         setActivePage={setActivePage}
         familyCode={familyCode}
       />
-      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 28px" }}>
+      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "24px 16px" }}>
         {activePage === "menu" && <MenuView familyCode={familyCode} />}
         {activePage === "create" && <MenuCreate familyCode={familyCode} />}
         {activePage === "dishes" && <Dishes familyCode={familyCode} />}
