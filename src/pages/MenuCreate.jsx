@@ -59,7 +59,12 @@ export default function MenuCreate({ familyCode }) {
   };
 
   const currentDishes = menu[activeDay]?.[activeMeal] || [];
-  const filteredDishes = filterCategory === "Всички" ? dishes : dishes.filter((d) => d.category === filterCategory);
+  const [search, setSearch] = useState("");
+
+  const filteredDishes = dishes
+    .filter((d) => filterCategory === "Всички" || d.category === filterCategory)
+    .filter((d) => d.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name, "bg"));
   const activeMealObj = MEALS.find((m) => m.key === activeMeal);
 
   return (
@@ -142,6 +147,24 @@ export default function MenuCreate({ familyCode }) {
             {cat}
           </button>
         ))}
+      </div>
+            {/* Търсене */}
+      <div style={{ position: "relative", marginBottom: 16 }}>
+        <svg style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#9AA39B" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          placeholder="Търси ястие..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%", padding: "10px 14px 10px 40px",
+            borderRadius: 10, border: "1.5px solid #E2DDD3",
+            fontFamily: "'Manrope', sans-serif", fontSize: 14,
+            color: "#1E2A24", outline: "none", boxSizing: "border-box",
+            background: "white", marginBottom: 0,
+          }}
+        />
       </div>
 
       {filteredDishes.length === 0 ? (

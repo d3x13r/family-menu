@@ -122,7 +122,12 @@ export default function Dishes({ familyCode }) {
     setSelectedDish(null); setShowForm(true);
   };
 
-  const filtered = activeCategory === "Всички" ? dishes : dishes.filter((d) => d.category === activeCategory);
+const [search, setSearch] = useState("");
+
+const filtered = dishes
+  .filter((d) => activeCategory === "Всички" || d.category === activeCategory)
+  .filter((d) => d.name.toLowerCase().includes(search.toLowerCase()))
+  .sort((a, b) => a.name.localeCompare(b.name, "bg"));
 
   if (selectedDish) {
     const catStyle = CAT_COLORS[selectedDish.category] || { bg: "#F0EDE5", color: "#5E6B63" };
@@ -307,6 +312,18 @@ export default function Dishes({ familyCode }) {
             {cat}
           </button>
         ))}
+      </div>
+      {/* Търсене */}
+      <div style={{ position: "relative", marginBottom: 16 }}>
+        <svg style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#9AA39B" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          placeholder="Търси ястие..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ ...inputStyle, paddingLeft: 40, marginBottom: 0 }}
+        />
       </div>
 
       {filtered.length === 0 ? (
