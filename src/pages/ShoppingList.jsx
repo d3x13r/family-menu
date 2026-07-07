@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase/config";
 import { doc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { getWeekKey, getMenuDocId } from "../utils/weekUtils";
+import { getWeekKey, getMenuDocId, formatWeekRange } from "../utils/weekUtils";
 
 const DAYS = ["Понеделник", "Вторник", "Сряда", "Четвъртък", "Петък", "Събота", "Неделя"];
 const MEALS = ["закуска", "обяд", "вечеря"];
@@ -17,7 +17,7 @@ const KEYWORDS = {
   meat: ["месо", "пиле", "пилешк", "свинск", "телешк", "кайма", "кюфте", "колбас", "шунка", "бекон", "салам", "наденица", "риба", "филе", "котлет", "пържола"],
   dairy: ["мляко", "сирене", "кашкавал", "яйце", "яйца", "масло", "сметана", "кисело мляко", "извара", "крема сирене"],
   vegetables: ["домат", "краставиц", "лук", "чесън", "морков", "картоф", "чушк", "тиквичк", "спанак", "зеле", "салата", "лимон", "ябълк", "банан", "круша", "грозде", "плод", "зеленчук"],
-  pantry: ["брашно", "захар", "сол", "олио", "оцет", "ориз", "макарон", "паста", "фиде", "вода", "подправк", "канела", "ванилия", "бакпулвер", "дрожди", "мед", "конфитюр", "чай", "кафе"],
+  pantry: ["брашно", "захар", "сол", "олио", "оцет", "ориз", "макарон", "паста", "фиде", "подправк", "канела", "ванилия", "бакпулвер", "дрожди", "мед", "конфитюр", "чай", "кафе"],
 };
 
 function categorize(name) {
@@ -28,7 +28,6 @@ function categorize(name) {
   return "pantry";
 }
 
-// Опитва да парсне стар текстов формат "Картофи - 200 гр." към {product, amount, unit}
 function parseLegacyIngredient(text) {
   const match = text.match(/^(.+?)\s*-\s*(\d+(?:[.,]\d+)?)\s*(гр|г|мл|бр|л|кг)?\.?$/i);
   if (match) {
@@ -49,15 +48,25 @@ function normalizeIngredients(dish) {
   return dish.ingredients.map(parseLegacyIngredient);
 }
 
+function changeWeekKey(weekKey, offset) {
+  const [year, month, day] = weekKey.split("-").map(Number);
+  const d = new Date(year, month - 1, day + offset * 7);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+}
+
 export default function ShoppingList({ familyCode }) {
+  const [weekKey, setWeekKey] = useState(getWeekKey());
   const [items, setItems] = useState([]);
   const [bought, setBought] = useState({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { loadItems(); }, []);
+  useEffect(() => { setBought({}); loadItems(); }, [weekKey]);
 
   const loadItems = async () => {
-    const weekKey = getWeekKey();
+
     const menuRef = doc(db, "menus", getMenuDocId(familyCode, weekKey));
     const menuSnap = await getDoc(menuRef);
     if (!menuSnap.exists()) { setLoading(false); return; }
@@ -120,15 +129,42 @@ export default function ShoppingList({ familyCode }) {
   if (loading) return (
     <p style={{ color: "#6F7B73", fontFamily: "'Manrope', sans-serif" }}>Зареждане...</p>
   );
-
-  return (
+    const navBtn = {
+    display: "flex", alignItems: "center", justifyContent: "center",
+    width: 38, height: 38, borderRadius: 10,
+    border: "1.5px solid #DDD8CE", background: "white",
+    color: "#1E2A24", cursor: "pointer",
+  };
+return (
     <div style={{ fontFamily: "'Manrope', sans-serif" }}>
-      <h1 style={{ fontFamily: "'Lora', serif", fontSize: 34, fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em", marginBottom: 6 }}>
-        Списък за пазаруване
-      </h1>
-      <p style={{ color: "#6F7B73", fontSize: 15, marginBottom: 28 }}>
-        Продукти от седмичното меню
-      </p>
+      {/* Заглавие + навигация */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontFamily: "'Lora', serif", fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 600, color: "#1E2A24", letterSpacing: "-0.015em" }}>
+          Списък за пазаруване
+        </h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginTop: 8 }}>
+          <p style={{ color: "#6F7B73", fontSize: 14, fontFamily: "'Manrope', sans-serif" }}>
+            {formatWeekRange(weekKey)}
+          </p>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button onClick={() => setWeekKey(changeWeekKey(weekKey, -1))} style={navBtn}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            {weekKey !== getWeekKey() && (
+              <button onClick={() => setWeekKey(getWeekKey())} style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderRadius: 10, border: "1.5px solid #DDD8CE", background: "white", fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 13, color: "#1E2A24", cursor: "pointer" }}>
+                Тази седмица
+              </button>
+            )}
+            <button onClick={() => setWeekKey(changeWeekKey(weekKey, 1))} style={navBtn}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {totalCount > 0 && (
         <div style={{ background: "white", border: "1px solid #ECE8DF", borderRadius: 16, padding: "20px 24px", marginBottom: 28, boxShadow: "0 1px 2px rgba(30,42,36,0.04)" }}>
@@ -149,7 +185,7 @@ export default function ShoppingList({ familyCode }) {
 
       {totalCount === 0 ? (
         <div style={{ textAlign: "center", padding: "4rem 2rem", color: "#B6BAB2" }}>
-          <p style={{ fontSize: 16, marginBottom: 8 }}>Няма планирани ястия тази седмица.</p>
+          <p style={{ fontSize: 16, marginBottom: 8 }}>Няма планирани ястия за тази седмица.</p>
           <p style={{ fontSize: 14 }}>Добави ястия в раздел "Създай".</p>
         </div>
       ) : (
